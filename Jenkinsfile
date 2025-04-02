@@ -1,53 +1,62 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token') // optional: update if you're pushing images
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/OmedCyber/Jenkins-Docker-UBUNTU.git',
-                    credentialsId: 'github-jenkins-token' // This should match the ID you used when adding the token
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/OmedCyber/Jenkins-Docker-UBUNTU.git',
+                        credentialsId: 'github-jenkins-token'
+                    ]]
+                ])
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building the project...'
-                // Replace with actual build steps, for example:
-                sh 'mvn clean package'
+                echo 'Running Build Stage...'
+                // Example: mvn clean install or gradle build
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
-                // Replace with actual test steps
-                sh 'mvn test'
+                echo 'Running Tests...'
+                // Example: mvn test or npm test
             }
         }
 
         stage('Static Code Analysis') {
             steps {
-                echo 'Running static code analysis...'
-                // Example: SonarQube integration, etc.
+                echo 'Running Static Analysis...'
+                // Example: sonar-scanner
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t my-jenkins-app .'
+                script {
+                    docker.build("jenkins-custom-image")
+                }
             }
         }
 
         stage('Push to Docker Hub') {
+            when {
+                expression { return env.DOCKERHUB_CREDENTIALS != null }
+            }
             steps {
-                echo 'Pushing Docker image to Docker Hub...'
-                // Make sure Docker credentials are configured
-                sh '''
-                echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                docker push my-jenkins-app
-                '''
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-token') {
+                        docker.image('jenkins-custom-image').push('latest')
+                    }
+                }
             }
         }
     }
