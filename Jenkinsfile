@@ -7,6 +7,12 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/OmedCyber/Jenkins-Docker-UBUNTU.git'
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
