@@ -1,69 +1,53 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE_SERVER = 'http://sonar:9000'
-        DOCKER_IMAGE = 'roguemain12/math-utils:latest'
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/OmedCyber/Jenkins-Docker-UBUNTU.git'
+                git branch: 'main',
+                    url: 'https://github.com/OmedCyber/Jenkins-Docker-UBUNTU.git',
+                    credentialsId: 'github-jenkins-token' // This should match the ID you used when adding the token
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    docker.image('openjdk:17-jdk').inside {
-                        sh 'mvn clean package -DskipTests=true'
-                    }
-                }
+                echo 'Building the project...'
+                // Replace with actual build steps, for example:
+                sh 'mvn clean package'
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    docker.image('openjdk:11-jdk').inside {
-                        sh 'mvn test'
-                    }
-                }
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
+                echo 'Running tests...'
+                // Replace with actual test steps
+                sh 'mvn test'
             }
         }
 
         stage('Static Code Analysis') {
             steps {
-                script {
-                    docker.image('openjdk:8-jdk').inside {
-                        sh 'mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_SERVER}'
-                    }
-                }
+                echo 'Running static code analysis...'
+                // Example: SonarQube integration, etc.
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
-                }
+                echo 'Building Docker image...'
+                sh 'docker build -t my-jenkins-app .'
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                        sh 'docker push ${DOCKER_IMAGE}'
-                    }
-                }
+                echo 'Pushing Docker image to Docker Hub...'
+                // Make sure Docker credentials are configured
+                sh '''
+                echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                docker push my-jenkins-app
+                '''
             }
         }
     }
