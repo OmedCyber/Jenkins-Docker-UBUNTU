@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token') // optional: update if you're pushing images
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token') // optional
+        SONAR_TOKEN = credentials('sonarqube-token') // 🔐 must match your SonarQube token ID in Jenkins
     }
 
     stages {
@@ -21,21 +22,27 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Running Build Stage...'
-                // Example: mvn clean install or gradle build
+                // Example: mvn clean install
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running Tests...'
-                // Example: mvn test or npm test
+                // Example: mvn test
             }
         }
 
         stage('Static Code Analysis') {
             steps {
-                echo 'Running Static Analysis...'
-                // Example: sonar-scanner
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=JenkinsDockerFinal \
+                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
+                }
             }
         }
 
