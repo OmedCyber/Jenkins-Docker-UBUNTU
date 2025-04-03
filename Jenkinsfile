@@ -21,27 +21,28 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Running Build Stage...'
+                echo '🔧 Running Build Stage...'
                 // Example: mvn clean install
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running Tests...'
+                echo '🧪 Running Tests...'
                 // Example: mvn test
             }
         }
 
         stage('Static Code Analysis') {
             steps {
+                echo '🔍 Running Static Code Analysis with SonarQube...'
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
+                    sh """
                         mvn sonar:sonar \
                           -Dsonar.projectKey=JenkinsDockerFinal \
                           -Dsonar.host.url=http://localhost:9000 \
-                          -Dsonar.login=$SONAR_TOKEN
-                    '''
+                          -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
