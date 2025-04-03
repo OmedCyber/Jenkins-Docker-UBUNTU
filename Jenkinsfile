@@ -35,7 +35,8 @@ pipeline {
 
         stage('Static Code Analysis') {
             steps {
-                echo '🔍 Running Static Code Analysis with SonarQube...'
+                echo '🔍 Running Static Code Analysis with SonarQube... 🎯'
+
                 withSonarQubeEnv('SonarQube') {
                     sh 'which mvn' // ✅ confirms Maven is available
                     sh '''
