@@ -39,10 +39,13 @@ pipeline {
 
                 withSonarQubeEnv('SonarQube') {
                     sh 'which mvn' // ✅ confirms Maven is available
-                    sh "mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=JenkinsDockerFinal \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=${SONAR_TOKEN}"
+                    // Changed localhost -> sonar
+                    sh '''
+                        mvn clean verify sonar:sonar \
+                          -Dsonar.projectKey=JenkinsDockerFinal \
+                          -Dsonar.host.url=http://sonar:9000 \
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
