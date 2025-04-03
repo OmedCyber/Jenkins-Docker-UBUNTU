@@ -7,6 +7,12 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM',
@@ -22,24 +28,20 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔧 Running Build Stage...'
-                // Example: mvn clean install
             }
         }
 
         stage('Test') {
             steps {
                 echo '🧪 Running Tests...'
-                // Example: mvn test
             }
         }
 
         stage('Static Code Analysis') {
             steps {
                 echo '🔍 Running Static Code Analysis with SonarQube... 🎯'
-
                 withSonarQubeEnv('SonarQube') {
-                    sh 'which mvn' // ✅ confirms Maven is available
-                    // Changed localhost -> sonar
+                    sh 'which mvn'
                     sh '''
                         mvn clean verify sonar:sonar \
                           -Dsonar.projectKey=JenkinsDockerFinal \
