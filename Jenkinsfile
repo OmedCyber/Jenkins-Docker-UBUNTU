@@ -37,12 +37,13 @@ pipeline {
             steps {
                 echo '🔍 Running Static Code Analysis with SonarQube...'
                 withSonarQubeEnv('SonarQube') {
-                    sh """
-                        mvn sonar:sonar \
+                    sh 'which mvn' // ✅ confirms Maven is available
+                    sh '''
+                        mvn clean verify sonar:sonar \
                           -Dsonar.projectKey=JenkinsDockerFinal \
                           -Dsonar.host.url=http://localhost:9000 \
-                          -Dsonar.login=${SONAR_TOKEN}
-                    """
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
