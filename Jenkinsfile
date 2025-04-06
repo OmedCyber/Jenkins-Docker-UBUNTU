@@ -30,7 +30,10 @@ pipeline {
                 echo '🔧 Running Build Stage with Java 17...'
                 script {
                     docker.image('openjdk:17-jdk').inside {
-                        sh 'mvn clean compile'
+                        sh '''
+                            apt-get update && apt-get install -y maven
+                            mvn clean compile
+                        '''
                     }
                 }
             }
@@ -41,7 +44,10 @@ pipeline {
                 echo '🧪 Running Tests with Java 11...'
                 script {
                     docker.image('openjdk:11-jdk').inside {
-                        sh 'mvn test'
+                        sh '''
+                            apt-get update && apt-get install -y maven
+                            mvn test
+                        '''
                     }
                 }
             }
@@ -52,6 +58,7 @@ pipeline {
                 echo '🔍 Running Static Code Analysis with SonarQube (Java 8)...'
                 script {
                     docker.image('openjdk:8-jdk').inside {
+                        sh 'apt-get update && apt-get install -y maven'
                         withSonarQubeEnv('SonarQube') {
                             sh '''
                                 mvn verify sonar:sonar \
