@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.7-eclipse-temurin-17'
+            image 'maven:3.8.7-eclipse-temurin-8'
             args '-v /root/.m2:/root/.m2'
         }
     }
@@ -51,7 +51,7 @@ pipeline {
                     sh '''
                         mvn verify sonar:sonar \
                           -Dsonar.projectKey=JenkinsDockerFinal \
-                          -Dsonar.host.url=http://sonar:9000 \
+                          -Dsonar.host.url=http://192.168.0.135:9000 \
                           -Dsonar.login=$SONAR_TOKEN
                     '''
                 }
