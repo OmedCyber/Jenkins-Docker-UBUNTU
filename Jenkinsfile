@@ -27,13 +27,10 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo '🔧 Running Build Stage with Java 17...'
+                echo '🔧 Running Build Stage with Maven + Java 17...'
                 script {
-                    docker.image('openjdk:17-jdk').inside {
-                        sh '''
-                            apt-get update && apt-get install -y maven
-                            mvn clean compile
-                        '''
+                    docker.image('maven:3.8.7-eclipse-temurin-17').inside {
+                        sh 'mvn clean compile'
                     }
                 }
             }
@@ -41,13 +38,10 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo '🧪 Running Tests with Java 11...'
+                echo '🧪 Running Tests with Maven + Java 11...'
                 script {
-                    docker.image('openjdk:11-jdk').inside {
-                        sh '''
-                            apt-get update && apt-get install -y maven
-                            mvn test
-                        '''
+                    docker.image('maven:3.8.7-eclipse-temurin-11').inside {
+                        sh 'mvn test'
                     }
                 }
             }
@@ -55,10 +49,9 @@ pipeline {
 
         stage('Static Code Analysis') {
             steps {
-                echo '🔍 Running Static Code Analysis with SonarQube (Java 8)...'
+                echo '🔍 Running Static Code Analysis with SonarQube + Java 8...'
                 script {
-                    docker.image('openjdk:8-jdk').inside {
-                        sh 'apt-get update && apt-get install -y maven'
+                    docker.image('maven:3.8.7-eclipse-temurin-8').inside {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
                                 mvn verify sonar:sonar \
