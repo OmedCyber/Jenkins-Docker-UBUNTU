@@ -1,15 +1,15 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token') // Optional
-        SONAR_TOKEN = credentials('sonarqube-token')           // 🔐 Must match ID in Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')     // 🔐 Docker Hub credentials
+        SONAR_TOKEN = credentials('sonarqube-token')               // 🔐 SonarQube token
     }
 
     stages {
         stage('Clean Workspace') {
             steps {
-                deleteDir() // 🧼 Ensure fresh workspace
+                deleteDir() // 🧼 Clean up before build
             }
         }
 
@@ -28,14 +28,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔧 Running Build Stage...'
-                // Example: mvn clean install
+                sh 'mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
                 echo '🧪 Running Tests...'
-                // Example: mvn test
+                sh 'mvn test'
             }
         }
 
@@ -43,13 +43,20 @@ pipeline {
             steps {
                 echo '🔍 Running Static Code Analysis with SonarQube... 🎯'
                 withSonarQubeEnv('SonarQube') {
-                    sh 'which mvn' // ✅ Verifies Maven exists
                     sh '''
                         mvn clean verify sonar:sonar \
                           -Dsonar.projectKey=JenkinsDockerFinal \
                           -Dsonar.host.url=http://sonar:9000 \
                           -Dsonar.login=$SONAR_TOKEN
                     '''
+                }
+            }
+        }
+
+        stage('SonarQube Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
