@@ -56,7 +56,7 @@ pipeline {
                             sh '''
                                 mvn verify sonar:sonar \
                                   -Dsonar.projectKey=JenkinsDockerFinal \
-                                  -Dsonar.host.url=http://host.docker.internal:9000 \
+                                  -Dsonar.host.url=http://sonar:9000 \
                                   -Dsonar.login=${SONAR_TOKEN} \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
