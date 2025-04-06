@@ -1,15 +1,20 @@
-pipeline { 
-    agent any
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.8.7-eclipse-temurin-17'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')     // 🔐 Docker Hub credentials
-        SONAR_TOKEN = credentials('sonarqube-token')               // 🔐 SonarQube token
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
+        SONAR_TOKEN = credentials('sonarqube-token')
     }
 
     stages {
         stage('Clean Workspace') {
             steps {
-                deleteDir() // 🧼 Clean up before build
+                deleteDir()
             }
         }
 
@@ -44,7 +49,7 @@ pipeline {
                 echo '🔍 Running Static Code Analysis with SonarQube... 🎯'
                 withSonarQubeEnv('SonarQube') {
                     sh '''
-                        mvn clean verify sonar:sonar \
+                        mvn verify sonar:sonar \
                           -Dsonar.projectKey=JenkinsDockerFinal \
                           -Dsonar.host.url=http://sonar:9000 \
                           -Dsonar.login=$SONAR_TOKEN
