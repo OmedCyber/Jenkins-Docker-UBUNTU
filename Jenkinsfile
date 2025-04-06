@@ -27,7 +27,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo '🔧 Running Build Stage with Maven + Java 17...'
+                echo 'Running Build Stage with Maven + Java 17...'
                 script {
                     docker.image('maven:3.8.7-eclipse-temurin-17').inside {
                         sh 'mvn clean compile'
@@ -38,7 +38,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo '🧪 Running Tests with Maven + Java 11...'
+                echo 'Running Tests with Maven + Java 11...'
                 script {
                     docker.image('maven:3.8.7-eclipse-temurin-11').inside {
                         sh 'mvn test'
@@ -49,7 +49,7 @@ pipeline {
 
         stage('Static Code Analysis') {
             steps {
-                echo '🔍 Running Static Code Analysis with SonarQube + Java 8...'
+                echo 'Running Static Code Analysis with SonarQube + Java 8...'
                 script {
                     docker.image('maven:3.8.7-eclipse-temurin-8').inside {
                         withSonarQubeEnv('SonarQube') {
@@ -57,7 +57,7 @@ pipeline {
                                 mvn verify sonar:sonar \
                                   -Dsonar.projectKey=JenkinsDockerFinal \
                                   -Dsonar.host.url=http://sonar:9000 \
-                                  -Dsonar.login=$SONAR_TOKEN \
+                                  -Dsonar.login=${SONAR_TOKEN} \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -76,7 +76,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Building Docker Image...'
+                echo 'Building Docker Image...'
                 script {
                     docker.build("roguemain12/math-utils")
                 }
@@ -88,7 +88,7 @@ pipeline {
                 expression { return env.DOCKERHUB_CREDENTIALS != null }
             }
             steps {
-                echo '📦 Pushing Docker Image to Docker Hub...'
+                echo 'Pushing Docker Image to Docker Hub...'
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-token') {
                         docker.image('roguemain12/math-utils').push('latest')
