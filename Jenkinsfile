@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
         SONAR_TOKEN = credentials('sonarqube-token')
+        SONARQUBE_SERVER = 'http://sonar:9000'
     }
 
     stages {
@@ -51,12 +52,12 @@ pipeline {
             steps {
                 echo 'Running Static Code Analysis with SonarQube + Java 8...'
                 script {
-                    docker.image('maven:3.8.7-eclipse-temurin-8').inside {
+                    docker.image('maven:3.8.7-eclipse-temurin-8').inside('--network=ci_network') {
                         withSonarQubeEnv('SonarQube') {
                             sh """
                                 mvn verify sonar:sonar \
                                   -Dsonar.projectKey=JenkinsDockerFinal \
-                                  -Dsonar.host.url=http://sonar:9000 \
+                                  -Dsonar.host.url=${SONARQUBE_SERVER} \
                                   -Dsonar.login=${SONAR_TOKEN} \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             """
