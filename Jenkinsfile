@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.8.7-eclipse-temurin-17' // Build with Java 17
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
+    agent any
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-token')
@@ -81,8 +76,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                echo '🐳 Building Docker Image...'
                 script {
-                    docker.build("jenkins-custom-image")
+                    docker.build("roguemain12/math-utils")
                 }
             }
         }
@@ -92,9 +88,10 @@ pipeline {
                 expression { return env.DOCKERHUB_CREDENTIALS != null }
             }
             steps {
+                echo '📦 Pushing Docker Image to Docker Hub...'
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-token') {
-                        docker.image('jenkins-custom-image').push('latest')
+                        docker.image('roguemain12/math-utils').push('latest')
                     }
                 }
             }
