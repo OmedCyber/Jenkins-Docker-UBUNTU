@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.7-eclipse-temurin-8'
+            image 'maven:3.8.7-eclipse-temurin-17' // ✅ Java 17 compatible with SonarQube
             args '-v /root/.m2:/root/.m2'
         }
     }
