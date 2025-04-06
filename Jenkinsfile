@@ -50,9 +50,9 @@ pipeline {
 
         stage('Static Code Analysis') {
             steps {
-                echo 'Running Static Code Analysis with SonarQube + Java 8...'
+                echo 'Running Static Code Analysis with SonarQube + Java 17...'
                 script {
-                    docker.image('maven:3.8.7-eclipse-temurin-8').inside('--network=ci_network') {
+                    docker.image('maven:3.8.7-eclipse-temurin-17').inside('--network=ci_network') {
                         withSonarQubeEnv('SonarQube') {
                             sh """
                                 mvn verify sonar:sonar \
