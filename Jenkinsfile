@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.7-eclipse-temurin-17' // ✅ Java 17 compatible with SonarQube
+            image 'maven:3.8.7-eclipse-temurin-17' // Build with Java 17
             args '-v /root/.m2:/root/.m2'
         }
     }
@@ -32,35 +32,48 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo '🔧 Running Build Stage...'
-                sh 'mvn clean compile'
+                echo '🔧 Running Build Stage with Java 17...'
+                script {
+                    docker.image('openjdk:17-jdk').inside {
+                        sh 'mvn clean compile'
+                    }
+                }
             }
         }
 
         stage('Test') {
             steps {
-                echo '🧪 Running Tests...'
-                sh 'mvn test'
+                echo '🧪 Running Tests with Java 11...'
+                script {
+                    docker.image('openjdk:11-jdk').inside {
+                        sh 'mvn test'
+                    }
+                }
             }
         }
 
         stage('Static Code Analysis') {
             steps {
-                echo '🔍 Running Static Code Analysis with SonarQube... 🎯'
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        mvn verify sonar:sonar \
-                          -Dsonar.projectKey=JenkinsDockerFinal \
-                          -Dsonar.host.url=http://192.168.0.135:9000 \
-                          -Dsonar.login=$SONAR_TOKEN
-                    '''
+                echo '🔍 Running Static Code Analysis with SonarQube (Java 8)...'
+                script {
+                    docker.image('openjdk:8-jdk').inside {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn verify sonar:sonar \
+                                  -Dsonar.projectKey=JenkinsDockerFinal \
+                                  -Dsonar.host.url=http://sonar:9000 \
+                                  -Dsonar.login=$SONAR_TOKEN \
+                                  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
                 }
             }
         }
 
         stage('SonarQube Quality Gate') {
             steps {
-                timeout(time: 1, unit: 'MINUTES') {
+                timeout(time: 2, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
