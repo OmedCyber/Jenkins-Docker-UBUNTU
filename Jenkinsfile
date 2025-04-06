@@ -100,5 +100,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Deploying to Kubernetes...'
+                sh 'kubectl apply -f deployment.yaml'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '🎉 Build completed successfully!'
+        }
+        failure {
+            echo '❌ Build failed. Check the logs!'
+        }
+        always {
+            echo '🔁 Pipeline finished (regardless of result).'
+        }
     }
 }
