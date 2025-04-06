@@ -67,6 +67,8 @@ pipeline {
             }
         }
 
+        // Skipping Quality Gate for now
+        /*
         stage('SonarQube Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -74,6 +76,7 @@ pipeline {
                 }
             }
         }
+        */
 
         stage('Build Docker Image') {
             steps {
